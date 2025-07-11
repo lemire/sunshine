@@ -108,7 +108,7 @@ La table `salaries` est le cœur de la base, reliant les employeurs et les emplo
 - **Index** : idx_salaries_individual_id ON individual_id
 
 
-## Index sur les clé primaires
+## Index sur les clé primaires ou étrangères
 
 Les requêtes sur les clés étrangères et les clé primaires sont souvent pertinentes
 et elles ne nécessitent pas davantage d'indexation.
