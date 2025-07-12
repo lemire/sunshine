@@ -54,7 +54,7 @@ Pour obtenir les fichiers du projet, vous pouvez télécharger une archive ZIP d
 Placez-vous dans le répartoire principal du projet. La commande
 
 ```bash
-python python/create.py  data/tbs-pssd-compendium-salary-disclosed-2024-en-utf-8-2025-03-26.csv database.bin
+python3 python/create.py  data/tbs-pssd-compendium-salary-disclosed-2024-en-utf-8-2025-03-26.csv database.bin
 ```
 
 ou 
