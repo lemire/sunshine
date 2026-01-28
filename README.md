@@ -3,6 +3,9 @@
 La base de données Sunshine de l’Ontario, officiellement appelée Public Sector Salary Disclosure (divulgation des salaires du secteur public), est une liste annuelle publiée par le gouvernement de l’Ontario, conformément à la Public Sector Salary Disclosure Act de 1996. Elle recense les employés du secteur public et des organisations financées par la province qui gagnent un salaire de 100 000 $ ou plus par an. Cette initiative vise à promouvoir la transparence et la responsabilité dans l’utilisation des fonds publics.
 Nous pouvons utiliser cette base de données pour tester les index dans les bases de données.
 
+
+[![Démonstration vidéo](https://img.youtube.com/vi/D3G_7uV1YKA/maxresdefault.jpg)](https://www.youtube.com/watch?v=D3G_7uV1YKA)
+
 ## Prérequis
 
 Avant de procéder, assurez-vous d'installer Python 3.7 ou une version ultérieure sur votre machine.
