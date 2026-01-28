@@ -110,7 +110,7 @@ La table `salaries` est le cœur de la base, reliant les employeurs et les emplo
 
 ## Index sur les clé primaires ou étrangères
 
-Les requêtes sur les clés étrangères et les clé primaires sont souvent pertinentes
+Les requêtes sur les clés étrangères et les clé primaires sont souvent de facto indexées
 et elles ne nécessitent pas davantage d'indexation.
 
 
@@ -184,3 +184,64 @@ vous devriez constater que l'index est utile.
 L'activité ne nécessite que la saisie de trois commandes. Vous pouvez consulter la vidéo suivante pour voir un résultat possible. (La vidéo ne sert pas à expliquer l'activité, elle n'est qu'une illustration.)
 
 [![Démonstration vidéo](https://img.youtube.com/vi/D3G_7uV1YKA/maxresdefault.jpg)](https://www.youtube.com/watch?v=D3G_7uV1YKA)
+
+
+## Examen du plan d'exécution (optionnel)
+
+Comme la plupart des moteurs de base de données, sqlite vous permet d'obtenir un plan d'exécution. Avec
+sqlite, il suffit de précéder votre requête de l'expression `"EXPLAIN QUERY PLAN:"`.
+
+
+
+Vous pouvez obtenir les plans d'exécution en exécutant le script avec
+
+```bash
+ python3 python/explain_plan.py database.bin  
+```
+
+ou 
+
+```bash
+ python python/explain_plan.py database.bin  
+```
+
+Le résultat devrait ressembler à ceci: 
+
+```
+Query 1: Join query for salaries with employer and individual details
+Query:
+SELECT i.last_name, i.first_name, e.employer_name, e.sector, s.salary, s.year
+            FROM salaries s
+            JOIN employers e ON s.employer_id = e.employer_id
+            JOIN individuals i ON s.individual_id = i.individual_id
+
+EXPLAIN QUERY PLAN:
+  5 | 0 | 216 | SCAN s
+  7 | 0 | 45 | SEARCH e USING INTEGER PRIMARY KEY (rowid=?)
+  10 | 0 | 45 | SEARCH i USING INTEGER PRIMARY KEY (rowid=?)
+
+Query 2: Average salary for individuals with last name 'Smith'
+Query:
+SELECT AVG(s.salary)
+            FROM salaries s
+            JOIN individuals i ON s.individual_id = i.individual_id
+            WHERE i.last_name = 'Smith'
+
+EXPLAIN QUERY PLAN:
+  5 | 0 | 54 | SEARCH i USING COVERING INDEX idx_individuals_last_name (last_name=?)
+  9 | 0 | 61 | SEARCH s USING INDEX idx_salaries_individual_id (individual_id=?)
+```
+
+### Interprétation des plans d'exécution
+
+Le plan d'exécution révèle comment SQLite optimise les requêtes en utilisant les index disponibles. Voici ce que suggère chaque plan concernant les index :
+
+- **Requête 1** : Cette requête est une jointure complète sans condition WHERE, récupérant toutes les lignes. Le plan montre :
+  - Un balayage complet (SCAN) de la table `salaries`, car aucune condition ne permet de filtrer les données.
+  - Des recherches par clé primaire sur `employers` et `individuals` pour récupérer les détails joints.
+  - **Suggestion** : Les index sur `salaries.employer_id` et `salaries.individual_id` ne sont pas utilisés ici, car un scan complet est nécessaire. Cela explique pourquoi, dans `benchmark.py`, ajouter ces index n'améliore pas les performances pour cette requête spécifique. Les index sont utiles pour les requêtes avec filtres ou jointures sélectives, mais pas pour les scans complets.
+
+- **Requête 2** : Cette requête filtre sur `i.last_name = 'Smith'` et joint les tables. Le plan montre :
+  - Une recherche (SEARCH) sur la table `individuals` en utilisant l'index couvrant `idx_individuals_last_name`. Cela signifie que l'index sur `last_name` est efficace pour filtrer rapidement les individus sans accéder à la table elle-même (couvrant, car il contient toutes les colonnes nécessaires).
+  - Une recherche sur la table `salaries` en utilisant l'index `idx_salaries_individual_id` pour récupérer les salaires correspondants.
+  - **Suggestion** : L'index sur `individuals.last_name` est très utile ici, car il évite un balayage complet de la table `individuals`. L'index sur `salaries.individual_id` aide également à accélérer la jointure. Sans ces index, la requête serait beaucoup plus lente, comme démontré dans `query.py`.
