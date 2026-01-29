@@ -61,7 +61,7 @@ Nous vous invitons à lire (au moins rapidement) le code Python des différents 
 ## Création de la base de données
 
 
-Placez-vous dans le répartoire principal du projet. La commande
+Placez-vous dans le répertoire principal du projet. La commande
 
 ```bash
 python3 python/create.py  data/tbs-pssd-compendium-salary-disclosed-2024-en-utf-8-2025-03-26.csv database.bin
