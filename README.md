@@ -3,6 +3,11 @@
 La base de données Sunshine de l’Ontario, officiellement appelée Public Sector Salary Disclosure (divulgation des salaires du secteur public), est une liste annuelle publiée par le gouvernement de l’Ontario, conformément à la Public Sector Salary Disclosure Act de 1996. Elle recense les employés du secteur public et des organisations financées par la province qui gagnent un salaire de 100 000 $ ou plus par an. Cette initiative vise à promouvoir la transparence et la responsabilité dans l’utilisation des fonds publics.
 Nous pouvons utiliser cette base de données pour tester les index dans les bases de données.
 
+
+Nous utilisons SQLite comme moteur de base de données pour ce projet.
+SQLite est une bibliothèque légère qui permet de créer une base complète sous la forme d’un seul fichier (ici database.bin). Aucun serveur n’est requis, l’installation est immédiate et la portabilité est excellente : le fichier peut être copié, envoyé ou archivé comme n’importe quel autre. Pour un ensemble de données de taille modeste comme la divulgation des salaires du secteur public de l’Ontario, SQLite offre des performances très satisfaisantes, une API simple et une excellente fiabilité transactionnelle. C’est donc un choix idéal pour illustrer concrètement l’impact des index sur les performances sans introduire la complexité d’un SGBD client-serveur.
+Il est parfaitement possible de faire des analyses de données avec des bases de données légères comme SQLite et DuckDB. Le principle d'utilisation est le même qu'avec des bases de données comme SQL Server, Oracle, MySQL, etc. à la différence prêt que l'utilisation est plus simple.
+
 ## Prérequis
 
 Avant de procéder, assurez-vous d'installer Python 3.7 ou une version ultérieure sur votre machine.
@@ -47,6 +52,11 @@ Pour obtenir les fichiers du projet, vous pouvez télécharger une archive ZIP d
 2. Cliquez sur le bouton vert « Code » puis sur « Download ZIP ».
 3. Décompressez l’archive téléchargée sur votre ordinateur.
 4. Ouvrez le dossier extrait dans votre terminal ou explorateur de fichiers pour suivre les instructions d’installation ci-dessus.
+
+## Examen du code
+
+Nous vous invitons à lire (au moins rapidement) le code Python des différents fichiers du projet. Portez attention au code SQL.
+
 
 ## Création de la base de données
 
