@@ -64,13 +64,13 @@ Nous vous invitons à lire (au moins rapidement) le code Python des différents 
 Placez-vous dans le répertoire principal du projet. La commande
 
 ```bash
-python3 python/create.py  data/tbs-pssd-compendium-salary-disclosed-2024-en-utf-8-2025-03-26.csv database.bin
+python3 python/create.py  data/tbs-pssd-compendium-salary-disclosed-2025-en-utf-8-2026-03-23.csv database.bin
 ```
 
 ou 
 
 ```bash
-python python/create.py  data/tbs-pssd-compendium-salary-disclosed-2024-en-utf-8-2025-03-26.csv database.bin
+python python/create.py   data/tbs-pssd-compendium-salary-disclosed-2025-en-utf-8-2026-03-23.csv database.bin
 ```
 
 devrait créer une base de données "database.bin" normalisée.
@@ -186,6 +186,47 @@ ou
 ```
 
 vous devriez constater que l'index est utile.
+
+## Analyse des salaires des professeurs titulaires
+
+Le script [python/full_professors_stats.py](python/full_professors_stats.py) calcule le salaire moyen et le salaire médian des professeurs titulaires en Ontario à partir de la base SQLite.
+
+Par défaut, le script limite l'analyse au secteur `Universities` et retient les titres d'emploi contenant `Professor`, tout en excluant explicitement les rangs `Assistant Professor`, `Associate Professor`, `Adjunct Professor`, `Visiting Professor` et `Emeritus Professor`.
+
+Vous pouvez l'exécuter avec :
+
+```bash
+python3 python/full_professors_stats.py
+```
+
+ou 
+
+```bash
+python python/full_professors_stats.py
+```
+
+Le script affiche :
+
+- le nombre d'enregistrements retenus ;
+- le salaire moyen ;
+- le salaire médian.
+
+Avec la base courante, vous devriez obtenir un résultat semblable à celui-ci :
+
+```
+Source: /chemin/vers/database.bin
+Definition: job_title contains 'Professor' and excludes Assistant/Associate/Adjunct/Visiting/Emeritus ranks
+Sector filter: Universities only
+Records matched: 6639
+Average salary: $223,214.10
+Median salary:  $218,440.00
+```
+
+Si vous souhaitez inclure tous les secteurs plutôt que seulement les universités, ajoutez l'option suivante :
+
+```bash
+python3 python/full_professors_stats.py --all-sectors
+```
 
 
 
