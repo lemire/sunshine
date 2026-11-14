@@ -73,7 +73,7 @@ def benchmark_lastname_index(db_name):
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python benchmark_lastname_index.py <db_name>")
+        print("Usage: python query.py <db_name>")
         return
 
     db_name = sys.argv[1]

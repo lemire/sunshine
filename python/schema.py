@@ -46,7 +46,7 @@ def dump_schema(db_name, output_file=None):
 
 def main():
     if len(sys.argv) < 2 or len(sys.argv) > 3:
-        print("Usage: python dump_schema.py <db_name> [output_file]")
+        print("Usage: python schema.py <db_name> [output_file]")
         return
 
     db_name = sys.argv[1]

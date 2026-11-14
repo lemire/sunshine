@@ -1,4 +1,4 @@
-# Indexation de la base de données shunshine
+# Indexation de la base de données sunshine
 
 La base de données Sunshine de l’Ontario, officiellement appelée Public Sector Salary Disclosure (divulgation des salaires du secteur public), est une liste annuelle publiée par le gouvernement de l’Ontario, conformément à la Public Sector Salary Disclosure Act de 1996. Elle recense les employés du secteur public et des organisations financées par la province qui gagnent un salaire de 100 000 $ ou plus par an. Cette initiative vise à promouvoir la transparence et la responsabilité dans l’utilisation des fonds publics.
 Nous pouvons utiliser cette base de données pour tester les index dans les bases de données.
@@ -6,7 +6,7 @@ Nous pouvons utiliser cette base de données pour tester les index dans les base
 
 Nous utilisons SQLite comme moteur de base de données pour ce projet.
 SQLite est une bibliothèque légère qui permet de créer une base complète sous la forme d’un seul fichier (ici database.bin). Aucun serveur n’est requis, l’installation est immédiate et la portabilité est excellente : le fichier peut être copié, envoyé ou archivé comme n’importe quel autre. Pour un ensemble de données de taille modeste comme la divulgation des salaires du secteur public de l’Ontario, SQLite offre des performances très satisfaisantes, une API simple et une excellente fiabilité transactionnelle. C’est donc un choix idéal pour illustrer concrètement l’impact des index sur les performances sans introduire la complexité d’un SGBD client-serveur.
-Il est parfaitement possible de faire des analyses de données avec des bases de données légères comme SQLite et DuckDB. Le principle d'utilisation est le même qu'avec des bases de données comme SQL Server, Oracle, MySQL, etc. à la différence prêt que l'utilisation est plus simple.
+Il est parfaitement possible de faire des analyses de données avec des bases de données légères comme SQLite et DuckDB. Le principe d'utilisation est le même qu'avec des bases de données comme SQL Server, Oracle, MySQL, etc. à la différence près que l'utilisation est plus simple.
 
 ## Prérequis
 
@@ -73,7 +73,7 @@ ou
 python python/create.py   data/tbs-pssd-compendium-salary-disclosed-2025-en-utf-8-2026-03-23.csv database.bin
 ```
 
-devrait créer une base de données "database.bin" normalisée.
+devrait créer une base de données "database.bin" normalisée. Si le fichier "database.bin" existe déjà, il est remplacé.
 
 
 
@@ -81,7 +81,7 @@ devrait créer une base de données "database.bin" normalisée.
 
 ## Description du schéma de la base de données
 
-La base de données est conçue pour gérer les informations des employés du secteur public, en se concentrant sur leurs employeurs, leurs données personnelles et leurs rémunérations annuelles. Elle comprend quatre tables principales : `employers`, `individuals`, `salaries` et une table système `sqlite_sequence`. La table `employers` stocke les informations sur les employeurs, avec un identifiant unique (`employer_id`), le nom de l'employeur (`employer_name`) et son secteur d'activité (`sector`), garantissant l'unicité de la combinaison nom-secteur. La table `individuals` recense les employés avec un identifiant unique (`individual_id`), leur nom de famille (`last_name`), prénom (`first_name`) et titre de poste (`job_title`), avec une contrainte d'unicité sur ces trois champs pour éviter les doublons. Des index sont définis sur `individuals.last_name`, `salaries.employer_id` et `salaries.individual_id` pour optimiser les requêtes.
+La base de données est conçue pour gérer les informations des employés du secteur public, en se concentrant sur leurs employeurs, leurs données personnelles et leurs rémunérations annuelles. Elle comprend quatre tables principales : `employers`, `individuals`, `salaries` et une table système `sqlite_sequence`. La table `employers` stocke les informations sur les employeurs, avec un identifiant unique (`employer_id`), le nom de l'employeur (`employer_name`) et son secteur d'activité (`sector`), garantissant l'unicité de la combinaison nom-secteur. La table `individuals` recense les employés avec un identifiant unique (`individual_id`), leur nom de famille (`last_name`), prénom (`first_name`) et titre de poste (`job_title`), avec une contrainte d'unicité sur ces trois champs pour éviter les doublons. Le script `create.py` ne crée aucun index secondaire : les index sur `salaries.employer_id` et `salaries.individual_id` sont créés par le script `benchmark.py`, et l'index sur `individuals.last_name` par le script `query.py` (voir plus bas).
 
 La table `salaries` est le cœur de la base, reliant les employeurs et les employés via leurs identifiants (`employer_id` et `individual_id`) pour enregistrer les salaires (`salary`), avantages (`benefits`) et l'année (`year`). Une clé primaire composite sur `employer_id`, `individual_id` et `year` assure l'unicité des enregistrements annuels. Les clés étrangères établissent des relations avec les tables `employers` et `individuals`, garantissant l'intégrité référentielle. La table `sqlite_sequence` est utilisée par SQLite pour gérer les séquences des clés primaires auto-incrémentées. Ce schéma normalisé permet des requêtes efficaces sur les données salariales tout en maintenant une structure claire et cohérente.
 
@@ -105,7 +105,7 @@ La table `salaries` est le cœur de la base, reliant les employeurs et les emplo
 - **first_name** : TEXT, prénom, non nul
 - **job_title** : TEXT, titre de poste, non nul
 - **Contrainte** : UNIQUE(last_name, first_name, job_title)
-- **Index** : idx_individuals_last_name ON last_name
+- **Index** (créé par `query.py`) : idx_individuals_last_name ON last_name
 
 ## Table salaries
 - **employer_id** : INTEGER, clé étrangère référençant employers(employer_id)
@@ -114,8 +114,8 @@ La table `salaries` est le cœur de la base, reliant les employeurs et les emplo
 - **salary** : REAL, salaire, non nul
 - **benefits** : REAL, avantages, non nul
 - **Clé primaire** : (employer_id, individual_id, year)
-- **Index** : idx_salaries_employer_id ON employer_id
-- **Index** : idx_salaries_individual_id ON individual_id
+- **Index** (créé par `benchmark.py`) : idx_salaries_employer_id ON employer_id
+- **Index** (créé par `benchmark.py`) : idx_salaries_individual_id ON individual_id
 
 
 ## Index sur les clé primaires ou étrangères
@@ -124,7 +124,7 @@ Les requêtes sur les clés étrangères et les clé primaires sont souvent de f
 et elles ne nécessitent pas davantage d'indexation.
 
 
-Le script `benchmark.py` effecture la requête suivante...
+Le script `benchmark.py` effectue la requête suivante...
 
 ```sql
 SELECT i.last_name, i.first_name, e.employer_name, e.sector, s.salary, s.year
@@ -240,11 +240,11 @@ L'activité ne nécessite que la saisie de trois commandes. Vous pouvez consulte
 ## Examen du plan d'exécution (optionnel)
 
 Comme la plupart des moteurs de base de données, sqlite vous permet d'obtenir un plan d'exécution. Avec
-sqlite, il suffit de précéder votre requête de l'expression `"EXPLAIN QUERY PLAN:"`.
+sqlite, il suffit de précéder votre requête de l'expression `EXPLAIN QUERY PLAN`.
 
 
 
-Vous pouvez obtenir les plans d'exécution en exécutant le script avec
+Après avoir exécuté les scripts `benchmark.py` et `query.py` (qui créent les index), vous pouvez obtenir les plans d'exécution en exécutant le script avec
 
 ```bash
  python3 python/explain_plan.py database.bin  

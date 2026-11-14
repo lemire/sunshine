@@ -4,9 +4,10 @@ import os
 
 # Function to create the database and tables
 def create_database(db_name):
-    # Check if database file already exists
+    # Replace the database file if it already exists
     if os.path.exists(db_name):
-        raise FileExistsError(f"Error: Database {db_name} already exists.")
+        print(f"Database {db_name} already exists: it will be replaced.")
+        os.remove(db_name)
 
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
@@ -112,14 +113,12 @@ def main(csv_file, db_name):
             print(f"An error occurred while loading data: {e}")
         finally:
             conn.close()
-    except FileExistsError as e:
-        print(e)
     except Exception as e:
         print(f"An error occurred while creating database: {e}")
 
 if __name__ == '__main__':
     import sys
     if len(sys.argv) != 3:
-        print("Usage: python create_sunshine_db.py <csv_file> <db_name>")
+        print("Usage: python create.py <csv_file> <db_name>")
     else:
         main(sys.argv[1], sys.argv[2])

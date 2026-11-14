@@ -72,7 +72,7 @@ def benchmark_indexes(db_name):
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python benchmark_indexes.py <db_name>")
+        print("Usage: python benchmark.py <db_name>")
         return
 
     db_name = sys.argv[1]
